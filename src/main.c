@@ -1,9 +1,12 @@
 #include "../MLV/MLV_all.h"
 #include "../inc/Vue.h"
+#include <math.h>
+#include <time.h>
 
 int main(void){
 
     int fenetre=1, height = 600, width = 700;
+    srand(time(NULL));
     matriceJeu m;
     jeuVide(m);
     MLV_create_window("Tetris Magic", "tetris", width, height);

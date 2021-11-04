@@ -50,3 +50,35 @@ int finJeu(matriceJeu m){
     if(compte == LARGEUR*HAUTEUR) return 1;
     return 0;
 }
+int placePiece(Piece p, int * etape, matriceJeu m){
+
+    int i,j, compte=0, x, test=0;
+    
+    for(i=3;i!=0;i--){
+        compte = *etape - (3-i);
+        if(compte >= 0){
+            for(j=0;j<4;j++){
+                if(p->dessin[i][j] > 0){
+                    if(!test) {
+                        x = p->x+j;
+                        test = 1;
+                    }
+                    m[compte][p->x+j] = p->dessin[i][j];
+                }
+            }
+        }
+    }
+    return x;
+}
+int finGravite(matriceJeu m, int x, int etape){
+
+    if(m[etape+1][x] > 0 || etape+1 == HAUTEUR) return 1;
+    return 0;
+}
+void recopieMatrice(matriceJeu m, matriceJeu c){
+
+    int i, j;
+    for(i=0;i<HAUTEUR;i++)
+        for(j=0;j<LARGEUR;j++)
+            c[i][j] = m[i][j];
+}

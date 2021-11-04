@@ -2,7 +2,7 @@
 
 int menu(int height, int width){
 
-    int xButton=50, i, yButton=70, hButton=150;
+    int xButton=50, i, yButton=70, hButton=100;
 
     /* Rectangle Menu */
     MLV_draw_filled_rectangle(10, 10, width-20, height-20, MLV_COLOR_GRAY);
@@ -10,9 +10,9 @@ int menu(int height, int width){
     /* Titre */
     MLV_draw_text(((width-20)/2)-10, 20, "TETRIS", MLV_COLOR_BLACK);
     /* Boutons */
-    char * nomB[3];
-    nomB[0] = "Jouer"; nomB[1] = "Score"; nomB[2] = "Quitter";
-    for(i=0;i<3;i++){
+    char * nomB[4];
+    nomB[0] = "Jouer"; nomB[1] = "Charger"; nomB[2] = "Score";nomB[3] = "Quitter";
+    for(i=0;i<4;i++){
         MLV_draw_filled_rectangle(xButton, yButton+((hButton+20)*i), width-100, hButton, MLV_COLOR_WHITE);
         MLV_draw_text(((width-20)/2)-10, yButton+((hButton+20)*i)+(hButton/2),nomB[i], MLV_COLOR_BLACK);
     }
@@ -45,8 +45,10 @@ int menu(int height, int width){
 }
 int jeu(int height, int width, matriceJeu m){
 
-    int taillePred = 150;
-
+    int taillePred = 150, choixP, etape=1, x=LARGEUR/2;
+    Piece p; 
+    matriceJeu base;
+    jeuVide(base);
     MLV_clear_window(MLV_COLOR_BLACK);
     /*Grand rectangle blanc*/
     MLV_draw_filled_rectangle(20, 20, width-40, height-40, MLV_COLOR_WHITE);
@@ -54,17 +56,26 @@ int jeu(int height, int width, matriceJeu m){
     MLV_draw_filled_rectangle(width-40-taillePred, 20, taillePred+20, height-40, MLV_COLOR_GRAY);
     /* Ractangle de jeu */
     MLV_draw_rectangle(40, 40, width-80-taillePred-20, height-80, MLV_COLOR_BLACK);
-    int i;
     
-    for(i=0;i<LARGEUR;i++) m[0][i] = 1;
+    
+    choixP = choixPiece(1,1);
+    p = makePiece(choixP);
     while(!finJeu(m)){
+        recopieMatrice(base, m);
+        x = placePiece(p, &etape, m);
+        if(finGravite(m, x, etape)){
+            recopieMatrice(m, base);
+            choixP = choixPiece(1,1);
+            p = makePiece(choixP);
+            etape = 0;
+        }
         
+
         /* Affichage de la matrice du jeu */
         afficheJeu(height-80, width-80-taillePred-20, 40, 40, m);
-        printf("detect = %d\n",detectSoub(m));
         
-        MLV_wait_seconds(2);
-        afficheJeu(height-80, width-80-taillePred-20, 40, 40, m);
+        etape++;
+        MLV_wait_milliseconds(800);
     }
     
     MLV_actualise_window();
@@ -78,10 +89,10 @@ int score(int height, int width){
 }
 int afficheJeu(int h, int w, int x, int y, matriceJeu m){
 
-    int hCarre, wCarre, i, j, k;
+    int hCarre, wCarre, i, j;
     hCarre = h/HAUTEUR;
     wCarre = w/LARGEUR;
-    for(k=0;k<LARGEUR;k++) printf("ligne = %d\n", m[0][k]);
+    
     for(i=0;i<LARGEUR;i++){
         for(j=0;j<HAUTEUR;j++){
             switch(m[j][i]){
@@ -90,6 +101,15 @@ int afficheJeu(int h, int w, int x, int y, matriceJeu m){
                     break;
                 case 1:
                     MLV_draw_filled_rectangle(x+(i*wCarre), y+(j*hCarre), wCarre, hCarre, MLV_COLOR_BLUE);
+                    break;
+                case 2:
+                    MLV_draw_filled_rectangle(x+(i*wCarre), y+(j*hCarre), wCarre, hCarre, MLV_COLOR_RED);
+                    break;
+                case 3:
+                    MLV_draw_filled_rectangle(x+(i*wCarre), y+(j*hCarre), wCarre, hCarre, MLV_COLOR_GREEN);
+                    break;
+                case 4:
+                    MLV_draw_filled_rectangle(x+(i*wCarre), y+(j*hCarre), wCarre, hCarre, MLV_COLOR_YELLOW);
                     break;
             }
         }

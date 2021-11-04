@@ -1,12 +1,22 @@
 #ifndef PIECE_H
+
 #define PIECE_H
+#include "../MLV/MLV_all.h"
 
-typedef struct piece{
+#define BASEX 2
+#define BASEY 1
 
-    int x;
-    int y;
-    int type;
-    int couleur;
-} * Piece;
+typedef struct piece * Piece;
+
+struct piece{
+
+    short dessin[4][4];
+    short x;
+    short type;
+    short couleur;
+};
+
+int choixPiece(int min, int max);
+Piece makePiece(int type);
 
 #endif
