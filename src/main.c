@@ -3,8 +3,9 @@
 
 int main(void){
 
-    int fenetre=1, height = 600, width = 500;
-
+    int fenetre=1, height = 600, width = 700;
+    matriceJeu m;
+    jeuVide(m);
     MLV_create_window("Tetris Magic", "tetris", width, height);
     
     while(fenetre != 0){
@@ -14,6 +15,14 @@ int main(void){
 
             case 1: /* Menu du début */
                 fenetre = menu(height, width);
+                break;
+            case 2:
+                fenetre = jeu(height, width, m);
+                break;
+            case 3:
+                fenetre = score(height, width);
+                break;
+            case 0:
                 break;
         }
     }
