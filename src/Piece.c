@@ -23,6 +23,10 @@ Piece makePiece(int type){
             p->dessin[1][3]=couleur;p->dessin[1][2]=couleur;
             p->dessin[2][2] = couleur;p->dessin[2][1]=couleur;
             break;
+        case 2:
+            p->dessin[1][1]=couleur;p->dessin[1][2]=couleur;
+            p->dessin[1][3] = couleur;p->dessin[2][2]=couleur;
+            break;
 
     }
 }

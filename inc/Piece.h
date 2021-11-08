@@ -10,7 +10,7 @@ typedef struct piece * Piece;
 
 struct piece{
 
-    short dessin[4][4];
+    int dessin[4][4];
     short x;
     short type;
     short couleur;

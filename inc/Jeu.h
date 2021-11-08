@@ -13,7 +13,12 @@ void jeuVide(matriceJeu mat);
 int detectSoub(matriceJeu mat);
 void soubstrait(matriceJeu mat, int a);
 int finJeu(matriceJeu m);
-int placePiece(Piece p, int * etape, matriceJeu m);
-int finGravite(matriceJeu m, int x, int etape);
+void placePiece(Piece p, int * etape, matriceJeu m, int ** x);
+int finGravite(matriceJeu m, int ** x, int etape);
 void recopieMatrice(matriceJeu m, matriceJeu c);
+int movePiece(Piece p, int direction);
+void rotate90Horloge(int a[4][4]);
+void rotate90HorlogeInv(int a[4][4]);
+void recopieMat(int m[4][4], int c[4][4]);
+
 #endif

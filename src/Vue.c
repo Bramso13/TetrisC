@@ -20,7 +20,7 @@ int menu(int height, int width){
     int x, y;
     if(MLV_get_mouse_button_state(MLV_BUTTON_LEFT) == MLV_PRESSED){
         MLV_get_mouse_position(&x, &y);
-        for(i=0;i<3;i++){
+        for(i=0;i<4;i++){
             if(x > xButton && x < (width-100)+xButton && y > yButton+((hButton+20)*i) && y<yButton+((hButton+20)*i)+hButton){
                 
                 switch(i){
@@ -28,9 +28,12 @@ int menu(int height, int width){
                         return 2;
                         break;
                     case 1:
-                        return 3;
+                        return 2;
                         break;
                     case 2:
+                        return 3;
+                        break;
+                    case 3:
                         return 0;
                         break;
                 }
@@ -43,9 +46,15 @@ int menu(int height, int width){
     MLV_actualise_window();
     return 1;
 }
+
 int jeu(int height, int width, matriceJeu m){
 
-    int taillePred = 150, choixP, etape=1, x=LARGEUR/2;
+    int taillePred = 150, choixP, etape=1, i, fin=0, vit, rotation=0;
+    const int vitesse=500;
+
+    int **x = (int**) malloc(16*sizeof(int));
+    for(i=0;i<16;i++)
+        x[i] = (int*) malloc(2*sizeof(int));
     Piece p; 
     matriceJeu base;
     jeuVide(base);
@@ -53,21 +62,44 @@ int jeu(int height, int width, matriceJeu m){
     /*Grand rectangle blanc*/
     MLV_draw_filled_rectangle(20, 20, width-40, height-40, MLV_COLOR_WHITE);
     /* Rectangle Prediction */
+    
     MLV_draw_filled_rectangle(width-40-taillePred, 20, taillePred+20, height-40, MLV_COLOR_GRAY);
+    
     /* Ractangle de jeu */
     MLV_draw_rectangle(40, 40, width-80-taillePred-20, height-80, MLV_COLOR_BLACK);
     
-    
-    choixP = choixPiece(1,1);
+    choixP = choixPiece(1,2);
     p = makePiece(choixP);
-    while(!finJeu(m)){
+    while(!fin){
         recopieMatrice(base, m);
-        x = placePiece(p, &etape, m);
+        if(MLV_get_keyboard_state(MLV_KEYBOARD_RIGHT) == MLV_PRESSED){
+            movePiece(p, 1);
+        }
+        if(MLV_get_keyboard_state(MLV_KEYBOARD_LEFT) == MLV_PRESSED){
+            movePiece(p, 0);
+        }
+        if(MLV_get_keyboard_state(MLV_KEYBOARD_DOWN) == MLV_PRESSED){
+            vit = 100;
+        }else vit = vitesse;
+        if(MLV_get_keyboard_state(MLV_KEYBOARD_UP) == MLV_PRESSED){
+            if(rotation == 1){
+                rotate90HorlogeInv(p->dessin);
+                rotation=0;
+            }else{
+                rotate90Horloge(p->dessin);
+                rotation=1;
+            }
+        }
+        
+        
+        placePiece(p, &etape, m, x);
         if(finGravite(m, x, etape)){
             recopieMatrice(m, base);
             choixP = choixPiece(1,1);
             p = makePiece(choixP);
             etape = 0;
+            fin = finJeu(m);
+            rotation = 0;
         }
         
 
@@ -75,11 +107,11 @@ int jeu(int height, int width, matriceJeu m){
         afficheJeu(height-80, width-80-taillePred-20, 40, 40, m);
         
         etape++;
-        MLV_wait_milliseconds(800);
+        MLV_wait_milliseconds(vit);
     }
-    
+    free(x);
     MLV_actualise_window();
-    return 2;
+    return 1;
 }
 int score(int height, int width){
 
