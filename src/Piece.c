@@ -9,6 +9,7 @@ int choixPiece(int min, int max){
 Piece makePiece(int type){
 
     Piece p = (Piece) malloc(sizeof(struct piece));
+    if(p == NULL) exit(EXIT_FAILURE);
     int couleur = choixPiece(1,4);
     p->couleur = couleur;
     p->type = type;
@@ -29,4 +30,5 @@ Piece makePiece(int type){
             break;
 
     }
+    return p;
 }

@@ -20,4 +20,4 @@ main.o : ./inc/Jeu.h ./src/main.c
 	$(gcc) $(p1) -c ./src/main.c
 
 clean:
-	rm -f *.o *~ Space
+	rm -f *.o *~ Tetris

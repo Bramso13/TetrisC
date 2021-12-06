@@ -10,8 +10,9 @@ void jeuVide(matriceJeu m){
 }
 int detectSoub(matriceJeu mat){
 
-    int compte=0, i, j, nb=0, k;
+    int compte=0, i, j, nb=0;
     for(i=0;i<HAUTEUR;i++){
+        compte = 0;
         for(j=0;j<LARGEUR;j++){
             if(mat[i][j] > 0) compte++;
         }
@@ -31,7 +32,6 @@ void soubstrait(matriceJeu mat, int ligne){
     
     for(j=0;j<LARGEUR;j++) {
         mat[ligne][j]=0;
-        
     }
     for(i=ligne;i>0;i--){
         for(j=0;j<LARGEUR;j++){
@@ -41,7 +41,7 @@ void soubstrait(matriceJeu mat, int ligne){
 }
 int finJeu(matriceJeu m){
 
-    int i=0,j, compte=0;
+    int i=0,j;
     for(j=0;j<LARGEUR;j++)
         if(m[i][j] > 0) return 1;
     return 0;
@@ -55,7 +55,7 @@ void placePiece(Piece p, int * etape, matriceJeu m, int ** x){
         if(compte >= 0){
             for(j=0;j<4;j++){
                 if(p->dessin[i][j] > 0){
-                    if(p->dessin[i+1][j] == 0){
+                    if(p->dessin[i+1][j] == 0 || i==3){
                         x[test][0] = compte;
                         x[test][1] = p->x+j;
                         test++;
@@ -72,8 +72,11 @@ void placePiece(Piece p, int * etape, matriceJeu m, int ** x){
 int finGravite(matriceJeu m, int ** x, int etape){
 
     int ma = x[0][0], i;
-    for(i=0;i<ma;i++){
-        if(m[x[i][0]+1][x[i][1]] > 0 || x[i][0]+1 == HAUTEUR) return 1;
+    for(i=1;i<ma;i++){
+        
+        if(m[x[i][0]+1][x[i][1]] > 0 || x[i][1]+1 == HAUTEUR){
+            return 1;
+        }
     }
     return 0;
 }
@@ -94,6 +97,7 @@ int movePiece(Piece p, int direction){
 
     int i,j, compte=0, max=0;
     for(i=0;i<4;i++){
+        compte = 0;
         for(j=0;j<4;j++){
             if(p->dessin[i][j]>0) compte++;
         }
@@ -101,12 +105,12 @@ int movePiece(Piece p, int direction){
         compte=0;
     }
     if(direction){ /* DROITE */
-        if(p->x+max < LARGEUR-max && p->x+1 > 0){
+        if(p->x+max <= LARGEUR-max && p->x+1 > 0){
             p->x = p->x+1;
             return 1;
         }else return 0;
-    }else{
-        if(p->x >= 0 && p->x < LARGEUR-max){
+    }else{ /* GAUCHE */
+        if(p->x >= 0 && p->x <= LARGEUR-max){
             p->x = p->x-1;
             return 1;
         }else return 0;
@@ -137,4 +141,98 @@ void rotate90HorlogeInv(int a[4][4]){
     }
     recopieMat(temp, a);
 
+}
+
+void recupereScore(Score * tab){
+
+    int fr, rc;
+    FILE * fp = fopen("./data/score", "r");
+
+    if (fp == NULL){
+        printf("Probleme d'ouverture de fichier\n");
+        exit(EXIT_FAILURE);
+    }
+
+    fr = fread(tab, sizeof(Score), 3, fp);
+    if (fr != 3){
+        printf("Problème de lecture de fichier\n");
+        exit(EXIT_FAILURE);
+    }
+    rc = fclose(fp);
+    if(rc == EOF){
+        fprintf(stderr, "probleme de fermeture de fichier");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void initScore(){
+
+    int i, rc;
+    FILE * fp = fopen("./data/score", "w+");
+
+    if (fp == NULL){
+        printf("Probleme d'ouverture de fichier\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for(i=0;i<3;i++){
+        Score * s = (Score *) malloc(sizeof(struct score));
+
+        if(s == NULL){
+            printf("problème de malloc\n");
+            exit(EXIT_FAILURE);
+        }
+        s->classement = 0;
+        s->score = 0;
+        if( 1 != fwrite(s, sizeof(struct score), 1, fp)){
+            fprintf(stderr, "probleme d'écriture de fichier\n");
+        }
+    }   
+    rc = fclose(fp);
+    if(rc == EOF){
+        fprintf(stderr, "probleme de fermeture de fichier");
+        exit(EXIT_FAILURE);
+    }
+
+}
+void initPartie(){
+
+    int i, rc;
+    FILE * fp = fopen("./data/partieSauvegarde", "w+");
+
+    if (fp == NULL){
+        printf("Probleme d'ouverture de fichier\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for(i=0;i<3;i++){
+        Jeu * s = (Jeu *) malloc(sizeof(struct jeu));
+
+        if(s == NULL){
+            printf("problème de malloc\n");
+            exit(EXIT_FAILURE);
+        }
+        jeuVide(s->matrice);
+        s->score.classement = 0;
+        s->score.score = 0;
+        if( 1 != fwrite(s, sizeof(struct jeu), 1, fp)){
+            fprintf(stderr, "probleme d'écriture de fichier\n");
+        }
+    }   
+    rc = fclose(fp);
+    if(rc == EOF){
+        fprintf(stderr, "probleme de fermeture de fichier");
+        exit(EXIT_FAILURE);
+    }
+
+}
+int estVide(matriceJeu mat){
+
+    int i,j, compte=0;
+    for(i=0;i<HAUTEUR;i++){
+        for(j=0;j<LARGEUR;j++)
+            if(mat[i][j] == 0) compte++;
+    }
+    if(compte == LARGEUR*HAUTEUR) return 1;
+    return 0;
 }

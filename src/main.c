@@ -6,7 +6,8 @@
 int main(void){
 
     int fenetre=1, height = 600, width = 700;
-    srand(time(NULL));
+    /*initScore(); pour initialiser le fichier de score, a lancer qu'une fois*/
+    /*initPartie(); pour initialiser le fichier de sauvegarde de partie, a lancer qu'une fois*/
     matriceJeu m;
     jeuVide(m);
     MLV_create_window("Tetris Magic", "tetris", width, height);
@@ -25,6 +26,8 @@ int main(void){
             case 3:
                 fenetre = score(height, width);
                 break;
+            case 4:
+                fenetre = creationPiece(height, width);
             case 0:
                 break;
         }
