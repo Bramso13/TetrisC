@@ -195,6 +195,51 @@ void initScore(){
     }
 
 }
+void ecrireAllScore(Score * tab){
+    int i, rc;
+    FILE * fp = fopen("./data/score", "w+");
+
+    if (fp == NULL){
+        printf("Probleme d'ouverture de fichier\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for(i=0;i<3;i++){
+        Score * s = &tab[i];
+        if( 1 != fwrite(s, sizeof(struct score), 1, fp)){
+            fprintf(stderr, "probleme d'écriture de fichier\n");
+        }
+    }   
+    rc = fclose(fp);
+    if(rc == EOF){
+        fprintf(stderr, "probleme de fermeture de fichier");
+        exit(EXIT_FAILURE);
+    }
+}
+void ajouterScore(Score s){
+
+    Score * tab = (Score *) malloc(3*sizeof(Score));
+    int i, j, test=1;
+    recupereScore(tab);
+    
+    for(i=0;i<3;i++){
+        if(s.score > tab[i].score && test){
+            if(i > 0)
+                tab[i].classement = tab[i-1].classement + 1;
+            else
+                tab[i].classement = tab[i].classement + 1;
+            tab[i].score = s.score;
+            for(j=0;j<10;j++){
+                tab[i].nom[j] = s.nom[j];
+            }
+            test=0;
+        }
+        printf("Score : %d\n", tab[i].score);
+    }
+    ecrireAllScore(tab);
+    free(tab);
+
+}
 void initPartie(){
 
     int i, rc;
@@ -235,4 +280,76 @@ int estVide(matriceJeu mat){
     }
     if(compte == LARGEUR*HAUTEUR) return 1;
     return 0;
+}
+void chargerAllPartie(Jeu * j){
+
+    int fr, rc;
+    FILE * fp = fopen("./data/partieSauvegarde", "r");
+
+    if (fp == NULL){
+        printf("Probleme d'ouverture de fichier\n");
+        exit(EXIT_FAILURE);
+    }
+
+    fr = fread(j, sizeof(Jeu), 3, fp);
+    if (fr != 3){
+        printf("Problème de lecture de fichier\n");
+        exit(EXIT_FAILURE);
+    }
+    rc = fclose(fp);
+    if(rc == EOF){
+        fprintf(stderr, "probleme de fermeture de fichier");
+        exit(EXIT_FAILURE);
+    }
+}
+void savePartie(Jeu j){
+
+    Jeu * tab = (Jeu *) malloc(3*sizeof(struct jeu));
+    int i,k, test=1, compte=0;
+    chargerAllPartie(tab);
+    
+    for(i=0;i<3;i++){
+        if(tab[i].score.score == 0 && test){
+            recopieMatrice(j.matrice, tab[i].matrice);
+            tab[i].score.score = j.score.score;
+            tab[i].score.classement = j.score.classement;
+            for(k=0;k<10;k++){
+                tab[i].score.nom[k] = j.score.nom[k];
+            }
+            test = 0;
+        }
+        if(tab[i].score.score != 0) compte++;
+    }
+    if(compte==3){
+        recopieMatrice(j.matrice, tab[2].matrice);
+        tab[2].score.score = j.score.score;
+        tab[2].score.classement = j.score.classement;
+        for(k=0;k<10;k++){
+            tab[2].score.nom[k] = j.score.nom[k];
+        }
+    }
+    ecrireAllPartie(tab);
+    free(tab);
+}
+void ecrireAllPartie(Jeu * tab){
+
+    int i, rc;
+    FILE * fp = fopen("./data/partieSauvegarde", "w+");
+
+    if (fp == NULL){
+        printf("Probleme d'ouverture de fichier\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for(i=0;i<3;i++){
+        Jeu * s = &tab[i];
+        if( 1 != fwrite(s, sizeof(struct jeu), 1, fp)){
+            fprintf(stderr, "probleme d'écriture de fichier\n");
+        }
+    }   
+    rc = fclose(fp);
+    if(rc == EOF){
+        fprintf(stderr, "probleme de fermeture de fichier");
+        exit(EXIT_FAILURE);
+    }
 }

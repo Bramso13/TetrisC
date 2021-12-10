@@ -40,6 +40,9 @@ void attribueScore(int scoreFinal, char nom[10]);
 void recupereScore(Score * tab);
 void initScore();
 void chargerAllPartie(Jeu * j);
+void savePartie(Jeu j);
 void initPartie();
-
+void ecrireAllScore(Score * tab);
+void ecrireAllPartie(Jeu * tab);
+void ajouterScore(Score s);
 #endif
