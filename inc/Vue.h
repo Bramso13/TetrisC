@@ -14,5 +14,6 @@ int affichePred(int h, int w, int x, int y, int m[4][4]);
 int perdu(int height, int width, Score * score);
 void ecrireChar(char * result, char * base);
 int charger(int height, int width);
+int pause(int height, int width, Jeu j);
 
 #endif

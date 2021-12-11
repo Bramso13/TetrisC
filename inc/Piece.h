@@ -5,6 +5,7 @@
 
 #define BASEX 2
 #define BASEY 1
+#define NBPIECEBASE 2
 
 typedef struct piece * Piece;
 
@@ -18,5 +19,6 @@ struct piece{
 
 int choixPiece(int min, int max);
 Piece makePiece(int type);
+void initPiece();
 
 #endif

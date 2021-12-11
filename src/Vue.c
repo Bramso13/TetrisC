@@ -57,7 +57,8 @@ int menu(int height, int width){
 int jeu(int height, int width, matriceJeu m, Score * monscore){
 
     int taillePred = 150, choixP, choixPP, etape=1, i, fin=0, vit, rotation=0;
-    const int vitesse=400;
+    int xu,yu;
+    const int vitesse=300;
     MLV_Keyboard_button touche;
     MLV_Button_state state;
     srand(time(NULL));
@@ -137,10 +138,28 @@ int jeu(int height, int width, matriceJeu m, Score * monscore){
             pp = makePiece(choixPP);
         }
         
-        MLV_draw_text(570, 155, "Retour", MLV_COLOR_BLACK);
+        MLV_draw_text(570, 155, "Pause", MLV_COLOR_BLACK);
         MLV_draw_text(570, 200, "Score", MLV_COLOR_BLACK);
         
-        
+        if(MLV_get_mouse_button_state(MLV_BUTTON_LEFT) == MLV_PRESSED){
+            MLV_get_mouse_position(&xu, &yu);
+            if(xu > width-30-taillePred && xu < width-30 && yu > 150 && yu < 180){
+                Jeu j;
+                j.score.score = monscore->score;
+                j.score.classement = monscore->classement;
+                int k;
+                for(k=0;k<10;k++) j.score.nom[k] = monscore->nom[k];
+                recopieMatrice(base, j.matrice);
+                k = pause(height, width, j);
+                while(k == 1) {
+                    k = pause(height, width, j);
+                }
+                if(k == 2 || k == 3){
+                    jeuVide(m);
+                    return 1;
+                }
+            }
+        }
         /* Affichage de la matrice du jeu */
         afficheJeu(height-80, width-80-taillePred-20, 40, 40, m);
         affichePred(100, taillePred, width-taillePred-30, 40, pp->dessin);
@@ -151,13 +170,9 @@ int jeu(int height, int width, matriceJeu m, Score * monscore){
         monscore->score = monscore->score+1;
         MLV_wait_milliseconds(vit);
     }
-    Jeu j;
-    j.score.score = monscore->score;
-    j.score.classement = monscore->classement;
-    int k;
-    for(k=0;k<10;k++) j.score.nom[k] = monscore->nom[k];
-    recopieMatrice(base, j.matrice);
-    savePartie(j);
+    jeuVide(m);
+    jeuVide(base);
+    
     MLV_actualise_window();
     return 5;
 }
@@ -172,11 +187,17 @@ int score(int height, int width){
 
     MLV_draw_filled_rectangle(20, 20, width-40, height-40, MLV_COLOR_WHITE);
     MLV_draw_filled_rectangle(40, 40, 60, 20, MLV_COLOR_GRAY);
+    MLV_draw_text(45, 45, "Retour", MLV_COLOR_BLACK);
+    MLV_draw_filled_rectangle(width-120, 40, 100, 20, MLV_COLOR_GRAY);
+    MLV_draw_text(width-114, 45, "Reinitialiser", MLV_COLOR_BLACK);
     
     if(MLV_get_mouse_button_state(MLV_BUTTON_LEFT) == MLV_PRESSED){
         MLV_get_mouse_position(&x, &y);
         if(x > 40 && x < 100 && y > 40 && y < 60){
             return 1;
+        }
+        if(x > width-120 && x < width-20 && y > 40 && y < 60){
+            initScore();
         }
     }
     MLV_draw_text(width/2 - 30, 40, "Top Score", MLV_COLOR_BLACK);
@@ -252,9 +273,7 @@ int creationPiece(int height, int width, int m[][4]){
 int perdu(int height, int width, Score * score){
 
     MLV_clear_window(MLV_COLOR_GRAY10);
-    int i, base=100, x, y;
-    
-    char clas[4];
+    int i;
     char * text;
 
     MLV_wait_input_box(300, 50, 350, 80,
@@ -266,15 +285,12 @@ int perdu(int height, int width, Score * score){
     score->nom[i] = '\0';
     ajouterScore(*score);
     printf("je suis la\n");
-    // MLV_draw_filled_rectangle(20, 20, width-40, height-40, MLV_COLOR_WHITE);
+    MLV_draw_filled_rectangle(20, 20, width-40, height-40, MLV_COLOR_WHITE);
     
-    // MLV_draw_text(320, 40, "Game Over", MLV_COLOR_BLACK);
-    // MLV_draw_text(350, 40, "Game Over", MLV_COLOR_BLACK);
-    // printf("je suis la mint\n");
-    // sprintf(clas, "%d", score->score);
-
-    // MLV_draw_text(width/2 - 30, 100, "Votre Score :", MLV_COLOR_BLACK);
-    // MLV_draw_text(350, 100, clas, MLV_COLOR_BLACK);
+    MLV_draw_text(320, 40, "Game Over", MLV_COLOR_BLACK);
+    MLV_draw_text(350, 40, "Game Over", MLV_COLOR_BLACK);
+    
+    MLV_wait_seconds(3);
     MLV_actualise_window();
     return 1;
 }
@@ -360,11 +376,17 @@ int charger(int height, int width){
 
     MLV_draw_filled_rectangle(20, 20, width-40, height-40, MLV_COLOR_WHITE);
     MLV_draw_filled_rectangle(40, 40, 60, 20, MLV_COLOR_GRAY);
+    MLV_draw_text(45, 45, "Retour", MLV_COLOR_BLACK);
+    MLV_draw_filled_rectangle(width-120, 40, 100, 20, MLV_COLOR_GRAY);
+    MLV_draw_text(width-114, 45, "Reinitialiser", MLV_COLOR_BLACK);
     
     if(MLV_get_mouse_button_state(MLV_BUTTON_LEFT) == MLV_PRESSED){
         MLV_get_mouse_position(&x, &y);
         if(x > 40 && x < 100 && y > 40 && y < 60){
             return 1;
+        }
+        if(x > width-120 && x < width-20 && y > 40 && y < 60){
+            initPartie();
         }
     }
     MLV_draw_text(width/2 - 30, 40, "Charger une Partie", MLV_COLOR_BLACK);
@@ -392,4 +414,48 @@ int charger(int height, int width){
     free(tab);
     MLV_actualise_window();
     return 6;
+}
+
+int pause(int height, int width, Jeu j){
+
+    MLV_draw_filled_rectangle(50, 50, width-100, height-100, MLV_COLOR_BLACK);
+    MLV_draw_filled_rectangle(75, 70, width-150, 40, MLV_COLOR_GRAY);
+    MLV_draw_filled_rectangle(75, 120, width-150, 40, MLV_COLOR_GRAY);
+    MLV_draw_filled_rectangle(75, 170, width-150, 40, MLV_COLOR_GRAY);
+
+    MLV_draw_text(width/2 - 50, 75, "Reprendre le jeu", MLV_COLOR_BLACK);
+    MLV_draw_text(width/2 - 50, 125, "Quitter et save", MLV_COLOR_BLACK);
+    MLV_draw_text(width/2 - 30, 175, "Quitter", MLV_COLOR_BLACK);
+
+    int xu, yu;
+    int taillePred = 150;
+
+    if(MLV_get_mouse_button_state(MLV_BUTTON_LEFT) == MLV_PRESSED){
+        MLV_get_mouse_position(&xu, &yu);
+        
+        if(xu > 75 && xu < width-75 && yu > 70 && yu < 110){
+            MLV_clear_window(MLV_COLOR_BLACK);
+            /*Grand rectangle blanc*/
+            MLV_draw_filled_rectangle(20, 20, width-40, height-40, MLV_COLOR_WHITE);
+            /* Rectangle Prediction */
+
+            MLV_draw_filled_rectangle(width-40-taillePred, 20, taillePred+20, height-40, MLV_COLOR_GRAY);
+
+            /* Ractangle de jeu */
+            MLV_draw_rectangle(40, 40, width-80-taillePred-20, height-80, MLV_COLOR_BLACK);
+
+            MLV_draw_filled_rectangle(width-30-taillePred, 150, taillePred, 30, MLV_COLOR_WHITE);
+            return 0;
+        }
+        if(xu > 75 && xu<width-75 && yu > 120 && yu < 160){
+            savePartie(j);
+            return 2;
+        }
+        if(xu > 75 && xu < width-75 && yu > 170 && yu < 210){
+            return 3;
+        }
+    }
+
+    MLV_actualise_window();
+    return 1;
 }
