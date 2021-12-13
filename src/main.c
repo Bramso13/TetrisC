@@ -6,10 +6,13 @@
 
 int main(void){
 
-    int fenetre=1, height = 600, width = 700, k, i,ji;
+    int fenetre=1, height = 600, width = 700, k, i,ji, compteP;
     /*initScore(); pour initialiser le fichier de score, a lancer qu'une fois*/
     /*initPartie(); pour initialiser le fichier de sauvegarde de partie, a lancer qu'une fois*/
-    
+    Piece tab = (Piece) malloc(sizeof(struct piece));
+    recuperePiece(tab);
+    compteP = comptePiece(tab);
+    free(tab);
     matriceJeu m;
     int ma[4][4];
     for(i=0;i<4;i++)
@@ -24,23 +27,11 @@ int main(void){
     MLV_create_window("Tetris Magic", "tetris", width, height);
     Jeu * j = (Jeu*) malloc(3*sizeof(Jeu));
     chargerAllPartie(j);
-    // int i, k;
-    // for(i=0;i<HAUTEUR;i++){
-    //     for(k=0;k<LARGEUR;k++)
-    //         printf("%d ", j[0].matrice[i][k]);
-    //     printf("\n");
-    // }
-    //printf("score %d\n", j[0].score.score);
-    // Score s;
-    // s.score = 10;
-    // s.classement = 0;
-    // for(i=0;i<10;i++) s.nom[i] = 'o';
-    // ajouterScore(s);
     while(fenetre != 0){
         MLV_clear_window(MLV_COLOR_BLACK);
         if(fenetre >= 10){
             
-            fenetre = jeu(height, width, j[fenetre-10].matrice, &j[fenetre-10].score);
+            fenetre = jeu(height, width, j[fenetre-10].matrice, &j[fenetre-10].score, compteP);
         }
         switch(fenetre){
 
@@ -48,13 +39,13 @@ int main(void){
                 fenetre = menu(height, width);
                 break;
             case 2:
-                fenetre = jeu(height, width, m, &monscore);
+                fenetre = jeu(height, width, m, &monscore, compteP);
                 break;
             case 3:
                 fenetre = score(height, width);
                 break;
             case 4:
-                fenetre = creationPiece(height, width, ma);
+                fenetre = creationPiece(height, width, ma, &compteP);
                 break;
             case 5:
                 fenetre = perdu(height, width, &monscore);

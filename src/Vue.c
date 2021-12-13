@@ -54,7 +54,7 @@ int menu(int height, int width){
     return 1;
 }
 
-int jeu(int height, int width, matriceJeu m, Score * monscore){
+int jeu(int height, int width, matriceJeu m, Score * monscore, int nbp){
 
     int taillePred = 150, choixP, choixPP, etape=1, i, fin=0, vit, rotation=0;
     int xu,yu;
@@ -91,10 +91,10 @@ int jeu(int height, int width, matriceJeu m, Score * monscore){
     
     MLV_draw_filled_rectangle(width-30-taillePred, 150, taillePred, 30, MLV_COLOR_WHITE);
     
-    choixP = choixPiece(1,2);
-    choixPP = choixPiece(1,2);
-    pp = makePiece(choixPP);
-    p = makePiece(choixP);
+    choixP = choixPiece(1,nbp);
+    choixPP = choixPiece(1,nbp);
+    pp = MakePiece(choixPP);
+    p = MakePiece(choixP);
     while(!fin){
         
         recopieMatrice(base, m);
@@ -134,8 +134,8 @@ int jeu(int height, int width, matriceJeu m, Score * monscore){
             etape = 0;
             fin = finJeu(m);
             rotation = 0;
-            choixPP = choixPiece(1, 2);
-            pp = makePiece(choixPP);
+            choixPP = choixPiece(1, nbp);
+            pp = MakePiece(choixPP);
         }
         
         MLV_draw_text(570, 155, "Pause", MLV_COLOR_BLACK);
@@ -222,13 +222,65 @@ int score(int height, int width){
     MLV_actualise_window();
     return 3;
 }
-int creationPiece(int height, int width, int m[][4]){
+int creationPiece(int height, int width, int m[][4], int * nbp){
 
     MLV_clear_window(MLV_COLOR_WHITE);
-    int hCarre, wCarre, i, j;
+    int hCarre, wCarre, i, j, compteP, compte=0;
+    char clas[20];
     int h=500,w=600,x=50,y=50, xu, yu;
     hCarre = h/4;
     wCarre = w/4;
+
+    Piece tab = (Piece) malloc(NBPIECEMAX*sizeof(struct piece));
+    recuperePiece(tab);
+    compteP = comptePiece(tab);
+    *nbp = compteP;
+    sprintf(clas, "Nb de Piece :%d", compteP);
+
+    MLV_draw_filled_rectangle(40, 20, 60, 20, MLV_COLOR_GRAY);
+    MLV_draw_text(45, 25, "Retour", MLV_COLOR_BLACK);
+    MLV_draw_filled_rectangle(width-120, 20, 100, 20, MLV_COLOR_GRAY);
+    MLV_draw_text(width-114, 25, "Reinitialiser", MLV_COLOR_BLACK);
+    MLV_draw_filled_rectangle(width/2 - 20, 20, 100, 20, MLV_COLOR_GRAY);
+    MLV_draw_text(width/2 - 15, 25, clas, MLV_COLOR_BLACK);
+    MLV_draw_filled_rectangle(width-120, height-40, 100, 20, MLV_COLOR_GRAY);
+    MLV_draw_text(width-114, height-34, "Valider", MLV_COLOR_BLACK);
+
+    if(MLV_get_mouse_button_state(MLV_BUTTON_LEFT) == MLV_PRESSED){
+        MLV_get_mouse_position(&xu, &yu);
+        if(xu > 40 && xu < 100 && yu > 20 && yu < 40){
+            return 1;
+        }
+        if(xu > width-120 && xu < width-20 && yu > 20 && yu < 40){
+            initPiece();
+        }
+        if(xu > width-120 && xu < width-20 && yu > height-40 && yu < height-20){
+            for(i=0;i<4;i++){
+                for(j=0;j<4;j++){
+                    if(m[i][j] == 0) compte++;
+                }
+            }
+            if(compte < 16){
+                struct piece p;
+                for(i=0;i<4;i++){
+                    for(j=0;j<4;j++){
+                        p.dessin[i][j] = m[i][j];
+                    }
+                }
+                p.x = LARGEUR/2;
+                p.type = compteP+1;
+                p.couleur = 5;
+                printf("avan lajout de piece\n");
+                ajouterPiece(p, tab);
+                printf("apres lajout de piece\n");
+                for(i=0;i<4;i++){
+                    for(j=0;j<4;j++){
+                        m[i][j] = 0;
+                    }
+                }
+            }
+        }
+    }
 
     for(i=0;i<4;i++){
         for(j=0;j<4;j++){
@@ -267,12 +319,13 @@ int creationPiece(int height, int width, int m[][4]){
             }
         }
     }
+    MLV_wait_milliseconds(200);
     MLV_actualise_window();
     return 4;    
 }
 int perdu(int height, int width, Score * score){
 
-    MLV_clear_window(MLV_COLOR_GRAY10);
+    MLV_clear_window(MLV_COLOR_GRAY);
     int i;
     char * text;
 
@@ -284,7 +337,6 @@ int perdu(int height, int width, Score * score){
     }
     score->nom[i] = '\0';
     ajouterScore(*score);
-    printf("je suis la\n");
     MLV_draw_filled_rectangle(20, 20, width-40, height-40, MLV_COLOR_WHITE);
     
     MLV_draw_text(320, 40, "Game Over", MLV_COLOR_BLACK);

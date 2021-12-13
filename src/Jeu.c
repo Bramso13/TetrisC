@@ -105,7 +105,7 @@ int movePiece(Piece p, int direction){
         compte=0;
     }
     if(direction){ /* DROITE */
-        if(p->x+max <= LARGEUR-max && p->x+1 > 0){
+        if(p->x <= LARGEUR+max && p->x+1 > 0){
             p->x = p->x+1;
             return 1;
         }else return 0;
@@ -234,7 +234,7 @@ void ajouterScore(Score s){
             }
             test=0;
         }
-        printf("Score : %d\n", tab[i].score);
+        
     }
     ecrireAllScore(tab);
     free(tab);
